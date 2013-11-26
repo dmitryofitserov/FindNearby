@@ -10,11 +10,11 @@ FindNearby authored by salesforce.com, Inc.
 <script src="{!URLFOR($Resource.jqTable)}" type="text/javascript" ></script>
 <script src="{!URLFOR($Resource.fixedTHeader)}" type="text/javascript" ></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key=AIzaSyBnry20TskFbe4NWC_JWY--CQOkv9i10wo&sensor=true"></script>
+<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key={!GKey}&sensor=true"></script>
 <apex:form ><apex:commandLink action="{!goBackToRecord}" value="&lt;&lt; Back to {! JSENCODE(StartingPoint.rName)}" /></apex:form>
 <apex:form >
 <apex:outputPanel rendered="{!needFilters}"> 
-    <div style="clear:both;display:block;"><h1>FindNearby code name FishFinder: Updated 1.0.0</h1></div><br />
+    <div style="clear:both;display:block;"><h1>FindNearby code name FishFinder: Updated 1.0.1</h1></div><br />
     <div id="filters-button"><span><a class="Filter" onclick="jQuery('#filterDiv').slideToggle('slow');" href="javascript:%20void%280%29%3B">Filters (Show/Hide)</a></span></div>
     <div id="filterDiv">
         <table class="Filter" border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -199,7 +199,7 @@ function collectMapItems(){
      .item span {
          float: left;
          margin-right: 4px;
-         max-width: 134px;
+         max-width: 130px;
      }
      .item .item_plus_icon {
          margin-top: 4px;
@@ -209,7 +209,7 @@ function collectMapItems(){
          margin-left: 14px;
      }
     .Connected{
-        padding-left: 0;
+        padding-left: 4px;
         padding-top: 0;
         margin-top:  0;
         margin-left:0px;
