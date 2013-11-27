@@ -1,3 +1,31 @@
+/*
+Copyright (c) 2011, salesforce.com, Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, 
+    this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, 
+    this list of conditions and the following disclaimer in the documentation 
+    and/or other materials provided with the distribution.
+    * Neither the name of the salesforce.com, Inc. nor the names of its contributors 
+    may be used to endorse or promote products derived from this software 
+    without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
 public with sharing class MapUtility {
     
     Map<String, String> errors = new Map<String, String> {'200' => 'Located', '610' => 'Bad Google Maps Key', 
@@ -7,7 +35,7 @@ public with sharing class MapUtility {
     public static String LeadBaseQuery = 'Select OwnerId, Do_Not_Map__c, Mapping_Status__c,'+
                                          ' Lat__c, Lon__c, Phone,Status,Industry,'+
                                          ' PostalCode, State, Street, City, Country,'+
-                                         ' Name,Owner.Name'+
+                                         ' Name,Owner.Name,Company'+
                                          ' from Lead ';
     
     public static String AccountBaseQuery = 'Select  OwnerId, Mapping_Status__c, Id,'+
@@ -24,7 +52,7 @@ public with sharing class MapUtility {
     public static String ContactBaseQuery= 'Select Title, Phone, OwnerId, OtherStreet, OtherState, '+
                                          ' OtherPostalCode, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type, '+
                                          ' Mapping_Status__c, Mapping_Address__c, MailingStreet, MailingState, Account.Industry,'+
-                                         ' MailingPostalCode, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email From Contact ';
+                                         ' MailingPostalCode, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email,Account.Name From Contact ';
     
     
     public static String LeadToPlot = ' where (Mapping_Status__c != \'Located\' and Mapping_Status__c != \'Problem with Address\' and isConverted = false and Do_Not_Map__c = false) ';
@@ -34,7 +62,8 @@ public with sharing class MapUtility {
     public static String ContactToPlot  = ' where (Mapping_Status__c != \'Located\' and Mapping_Status__c != \'Problem With Address\') '+ 
                                         'and Mapping_Address__c != \'Do Not Map\' ';
                                          
-    public static String singleLimit = ' Limit 1 ';
+    public static String singleLimit = ' Limit 100 ';
+    
     //public static String ObjectLimit = ' Limit 150';
         
     
@@ -47,18 +76,18 @@ public with sharing class MapUtility {
         If I can't find anything - return null; 
     */
     public static Lead getSingleLeadToPlot(String id){
-        Lead l; 
+        Lead l;  
          try{
             if(id != null)
             {
-                l = [ Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, State, Street, City, Country, Name,Owner.Name 
+                l = [ Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, Zip_no_plus_4__c, State, Street, City, Country, Name,Owner.Name, Company 
                         from Lead
                         where id = :EncodingUtil.urlEncode(id,'UTF-8')
                         limit 1]; 
                
             }
             else{
-                l = [ Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, State, Street, City, Country, Name,Owner.Name 
+                l = [ Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, Zip_no_plus_4__c, State, Street, City, Country, Name,Owner.Name, Company 
                         from Lead
                         where (Mapping_Status__c != 'Located' and Mapping_Status__c != 'Problem with Address' and isConverted = false and Do_Not_Map__c = false) 
                         limit 1
@@ -71,6 +100,23 @@ public with sharing class MapUtility {
          }
          return l; 
     }
+    
+    //RSC trying with 100. since 1x1 is expensive.
+    public static List<Lead> getLeadsToPlot(){
+        List<Lead> l; 
+         try{
+                l = [ Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, Zip_no_plus_4__c, State, Street, City, Country, Name,Owner.Name,Company 
+                        from Lead
+                        where (Mapping_Status__c != 'Located' and Mapping_Status__c != 'Problem with Address' and isConverted = false and Do_Not_Map__c = false) 
+                        limit 100
+                    ];
+               
+            }
+         catch(Exception e){
+                 l = null;
+         }
+         return l; 
+    }    
 
     /*
     I will specifically find leads that NEED TO BE GEOLOCATED
@@ -88,9 +134,9 @@ public with sharing class MapUtility {
             {
                 id = String.escapeSingleQuotes(id);
                 l = [Select Title, Phone, OwnerId, OtherStreet, OtherState, 
-                                         OtherPostalCode, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
+                                         OtherPostalCode, Zip_no_plus_4__c, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
                                          Mapping_Status__c, Mapping_Address__c, MailingStreet, MailingState, Account.Industry,
-                                         MailingPostalCode, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email 
+                                         MailingPostalCode, Mailing_Zip_no_plus_4__c, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email, Account.Name 
                     From Contact
                     where id=:EncodingUtil.urlEncode(id,'UTF-8')
                     limit 1 ];
@@ -103,9 +149,9 @@ public with sharing class MapUtility {
                 else{
 
                    l= [Select Title, Phone, OwnerId, OtherStreet, OtherState, 
-                     OtherPostalCode, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
+                     OtherPostalCode, Zip_no_plus_4__c, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
                      Mapping_Status__c, Mapping_Address__c, MailingStreet, MailingState, Account.Industry,
-                     MailingPostalCode, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email 
+                     MailingPostalCode, Mailing_Zip_no_plus_4__c, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email, Account.Name 
                      From Contact
                      where  (Mapping_Status__c != 'Located' and Mapping_Status__c != 'Problem With Address')  
                                         and Mapping_Address__c != 'Do Not Map' 
@@ -135,8 +181,8 @@ public with sharing class MapUtility {
             if(id != null)
             {
                 a = [Select  OwnerId, Mapping_Status__c, Id,Name, Lat__c,Lon__c,Phone, BillingStreet,
-                              BillingCity,BillingState, BillingPostalCode,BillingCountry, Which_Address__c,
-                              ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode,ShippingCountry, Owner.Name
+                              BillingCity,BillingState, BillingPostalCode, Billing_Zip_no_plus_4__c, BillingCountry, Which_Address__c,
+                              ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode, Zip_no_plus_4__c, ShippingCountry, Owner.Name
                      from Account 
                      where id = :EncodingUtil.urlEncode(id,'UTF-8')
                      limit 1];
@@ -145,8 +191,8 @@ public with sharing class MapUtility {
             }
             else{
                 a = [Select  OwnerId, Mapping_Status__c, Id,
-                                Name, Lat__c,Lon__c,Phone, BillingStreet, BillingCity,BillingState, BillingPostalCode,
-                                          BillingCountry, Which_Address__c,ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode,ShippingCountry, Owner.Name
+                                Name, Lat__c,Lon__c,Phone, BillingStreet, BillingCity,BillingState, BillingPostalCode, Billing_Zip_no_plus_4__c,
+                                          BillingCountry, Which_Address__c,ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode, Zip_no_plus_4__c,ShippingCountry, Owner.Name
                      from Account
                      where (Mapping_Status__c != 'Located' and Mapping_Status__c != 'Problem With Address')  
                                         and Which_Address__c != 'Do Not Map'
@@ -164,8 +210,8 @@ public with sharing class MapUtility {
     
     public static Integer getObjectLimit(){
         try{
-        FN__FindNearby__c FNA = FN__FindNearby__c.getOrgDefaults();
-        String num = FNA.FN__How_Many__c + ' ';
+        FindNearby__c FNA = FindNearby__c.getOrgDefaults();
+        String num = FNA.How_Many__c + ' ';
         
         Integer k = num.IndexOf('.');
         
@@ -183,8 +229,8 @@ public with sharing class MapUtility {
     public static Decimal getAccuracy(){
         Decimal num=6;
         try{
-            FN__FindNearby__c FNA = FN__FindNearby__c.getOrgDefaults();
-            num = FNA.FN__Accuracy__c;
+            FindNearby__c FNA = FindNearby__c.getOrgDefaults();
+            num = FNA.Accuracy__c;
         }catch(Exception e){return 6;}
         
         if(num < 1){ num = 1;}
@@ -202,11 +248,11 @@ public with sharing class MapUtility {
         //Integer k =0;
         
         try{
-             List<Decimal> latLons = getBoundingBox(startingPoint,d);
+            List<Decimal> latLons = getBoundingBox(startingPoint,d);
             Accounts = [Select  OwnerId, Mapping_Status__c, Id,
                                           Name, Lat__c,Lon__c,Phone, BillingStreet,
-                                          BillingCity,BillingState, BillingPostalCode,
-                                          BillingCountry, Which_Address__c,ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode,ShippingCountry, Owner.Name
+                                          BillingCity,BillingState, BillingPostalCode, Billing_Zip_no_plus_4__c,
+                                          BillingCountry, Which_Address__c,ShippingStreet, ShippingCity,ShippingState,Type, Industry, ShippingPostalCode, Zip_no_plus_4__c, ShippingCountry, Owner.Name
                         from Account 
                         where ((lat__c >= :latLons[0] and lon__c >= :latLons[1]
                              and lat__c <= :latLons[2]  and lon__c <= :latLons[3])
@@ -238,9 +284,9 @@ public with sharing class MapUtility {
         try{
              List<Decimal> latLons = getBoundingBox(startingPoint,d);
              Contacts = [Select Title, Phone, OwnerId, OtherStreet, OtherState, 
-                                         OtherPostalCode, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
+                                         OtherPostalCode, Zip_no_plus_4__c, OtherPhone, OtherCountry, OtherCity, Name, Owner.Name, Account.Type,
                                          Mapping_Status__c, Mapping_Address__c, MailingStreet, MailingState, Account.Industry,
-                                         MailingPostalCode, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email 
+                                         MailingPostalCode, Mailing_Zip_no_plus_4__c, MailingCountry, MailingCity, Lon__c, Lat__c, Id, Email, Account.Name 
                         From Contact
                         where  ((lat__c >= :latLons[0] and lon__c >= :latLons[1]
                              and lat__c <= :latLons[2]  and lon__c <= :latLons[3])
@@ -277,7 +323,7 @@ public with sharing class MapUtility {
 
         try{
             List<Decimal> latLons = getBoundingBox(startingPoint,d);
-            leads =[Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, State, Street, City, Country, Name,Owner.Name 
+            leads =[Select OwnerId, Do_Not_Map__c, Mapping_Status__c, Lat__c, Lon__c, Phone,Status,Industry, PostalCode, Zip_no_plus_4__c, State, Street, City, Country, Name,Owner.Name,Company 
                     from Lead
                     where ((lat__c >= :latLons[0] and lon__c >= :latLons[1]
                              and lat__c <= :latLons[2]  and lon__c <= :latLons[3])
@@ -419,6 +465,15 @@ public with sharing class MapUtility {
         return false; 
     }
     
-
+//*********************************************************************************
+    private static testMethod void TestMapUtility() {
+        
+        MapUtility.getSingleLeadToPlot(null); 
+        
+        MapUtility.getSingleContactToPlot(null, false);
+        MapUtility.getSingleContactToPlot(null, true);  
+        MapUtility.getObjectLimit();
+       
+    }
 
 }
