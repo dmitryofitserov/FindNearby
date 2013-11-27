@@ -1,29 +1,35 @@
-Copyright (c) 2011, salesforce.com, Inc.
-All rights reserved.
+HOW TO UPDATE FINDNEARBY PACKAGE:
+=====
 
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
+As of 11/27/2013, there is only 1 page to update.
 
-    * Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, 
-    this list of conditions and the following disclaimer in the documentation 
-    and/or other materials provided with the distribution.
-    * Neither the name of the salesforce.com, Inc. nor the names of its contributors 
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission.
+1. Login to your salesforce instance.
+2. Goto the top right and hover your name, then choose setup.
+3. In the search on the left type "pages" and select Develop->Pages.
+4. Find the VisualForce page called "FindNearby" and click edit.
+5. Come back to this GitHub Repository and navigate to the same page:
+https://github.com/scarstens/FindNearby/blob/master/src/pages/FindNearbyMap.page
+6. Copy the contents from GitHub, got back to VisualForce and erase the contents, 
+then paste the contents from GitHub as a replacement.
+7. Save the VisualForce page and test by selecting the "Map It" link on a contact or lead.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
-OF THE POSSIBILITY OF SUCH DAMAGE.
 
-****
+UPDATE REVISION NOTES
+=========
+Note that this version of the app has been code named FishFinder. You will know you are using the correct version 
+when you see title FishFinder X.X.X as a version number at the top of your FindNearby page.
 
-Note that this code may require some work before you can deploy it to a standard org.  
+Version 1.0.1
+- Fixed API key to use GKEY from the custom FindNearby Options page.
+- Adjusted right lists to work when company name breaks to 2 lines.
+- Adjusted borders to look correct
+- Added HTML5 verticle span "button" that identifies pin type when pins are clicked (and color matches 
+pin to associate purple with CONTACTS)
+- Fixed double click to "add to route" and applied it to the pins as well, you may now double click pins to add them to the route.
+- Double clicking pin or list item now also "removes" it from the route, if it its already in the route.
+
+Version 0.9.3
+- Upgraded jQuery and jQueryUI to most current version available
+- **FEATURED** Upgraded Google Maps to V3 and rebuilt entire javascript code base to work with new API.
+- Seperated javascript from VisualForce componenets to simplify the VF page, JS library file currently hosted at api.raprec.com
+- Removed "Street View" option from the product, as the API calls to use this product require $10,000 API license.
