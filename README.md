@@ -1,4 +1,9 @@
-HOW TO UPDATE FINDNEARBY PACKAGE:
+I installed the "managed package"... what now?
+=====
+You will not find any of the files in your Salesforce instance if you installed this app from the AppExchange. You will need to uninstall the managed app, download this entire project, and use the Force.com IDE to deploy the files to your sandbox, then test (hopefully you get your 75% code coverage), and finally deploy to you production SalesForce.com website. Here is some documentation from SFDC (SalesForce Dot Com): http://wiki.developerforce.com/page/Deploy_Force.com_Applications_Faster
+
+
+HOW TO UPDATE / INSTALL:
 =====
 
 As of 11/27/2013, there is only 1 page to update.
