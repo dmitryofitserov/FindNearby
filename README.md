@@ -16,8 +16,6 @@ then paste the contents from GitHub as a replacement.
 
 ![Screenshot from FishFinder](http://scarstens.github.io/FindNearby/images/aa_fishfinder_1.0.1_sample.png)
 
-![Trail map](http://media.tumblr.com/tumblr_m2jrde9jXS1qz5x9p.jpg)
-
 UPDATE REVISION NOTES
 =========
 Note that this version of the app has been code named FishFinder. You will know you are using the correct version 
